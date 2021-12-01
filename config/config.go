@@ -6,10 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type FiberApp struct {
-	Port int
-}
-
 type MongoConfig struct {
 	Username           string
 	Password           string
@@ -19,7 +15,7 @@ type MongoConfig struct {
 
 type Configuration struct {
 	Environment string
-	FiberApp    FiberApp
+	Port        int
 	Mongo       MongoConfig
 }
 

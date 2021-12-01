@@ -47,7 +47,8 @@ func main() {
 	app.Get("/coin/:id", handler.GetById)
 	app.Put("/coin/:id", handler.Update)
 	app.Delete("/coin/:id", handler.Delete)
-	app.Listen(fmt.Sprintf("localhost:%d", cf.FiberApp.Port))
+	fmt.Printf("cf: %v\n", cf)
+	app.Listen(fmt.Sprintf("localhost:%d", cf.Port))
 }
 
 func connectMongo(username string, password string) *mongo.Client {
