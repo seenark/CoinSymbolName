@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -49,11 +48,11 @@ func main() {
 	app.Put("/coin/:id", handler.Update)
 	app.Delete("/coin/:id", handler.Delete)
 	fmt.Printf("cf: %v\n", cf)
-	port := os.Getenv("PORT")
-	if err != nil {
-		fmt.Println(err)
-	}
-	app.Listen(fmt.Sprintf("localhost:%v", port))
+	// port := os.Getenv("PORT")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	app.Listen(fmt.Sprintf(":%v", cf.Port))
 }
 
 func connectMongo(username string, password string) *mongo.Client {
