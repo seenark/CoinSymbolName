@@ -1,0 +1,8 @@
+environment: dev
+fiberApp:
+  port: 8000
+mongo:
+  username: HadesGod3
+  password: AtIwatseeNarK19
+  dbName: crypto
+  coinNameCollection: coin_name
