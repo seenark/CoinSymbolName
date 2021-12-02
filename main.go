@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/seenark/coin-name/config"
 	"github.com/seenark/coin-name/handlers"
 	"github.com/seenark/coin-name/repository"
@@ -40,6 +41,8 @@ func main() {
 	handler := handlers.NewCoinHandler(coinRepository)
 
 	app := fiber.New()
+	// Default config
+	app.Use(cors.New())
 	app.Post("/coin/", handler.Create)
 	app.Post("/coin/many", handler.CreateMany)
 	app.Get("/coin", handler.GetAll)
