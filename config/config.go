@@ -7,10 +7,12 @@ import (
 )
 
 type MongoConfig struct {
-	Username           string
-	Password           string
-	DbName             string
-	CoinNameCollection string
+	Username            string
+	Password            string
+	DbName              string
+	CoinNameCollection  string
+	KlineDbName         string
+	HourKlineCollection string
 }
 
 type Configuration struct {

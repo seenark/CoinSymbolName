@@ -10,7 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/seenark/coin-name/config"
 	"github.com/seenark/coin-name/handlers"
+	"github.com/seenark/coin-name/routine"
+
 	"github.com/seenark/coin-name/repository"
+	"github.com/seenark/coin-name/service"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -25,36 +28,31 @@ func main() {
 	mongoClient := connectMongo(cf.Mongo.Username, cf.Mongo.Password)
 	db := mongoClient.Database(cf.Mongo.DbName)
 	coinCollection := db.Collection(cf.Mongo.CoinNameCollection)
-	indexName, err := coinCollection.Indexes().CreateOne(
-		context.Background(),
-		mongo.IndexModel{
-			Keys:    bson.D{{Key: "symbol", Value: 1}},
-			Options: options.Index().SetUnique(true),
-		},
-	)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("index name:", indexName)
+	makeSymbolAsIndexes(coinCollection)
 
 	coinRepository := repository.NewCoinRepository(coinCollection, &ctx)
-	handler := handlers.NewCoinHandler(coinRepository)
+	coinService := service.NewCoinService(coinRepository)
+
+	klineDb := mongoClient.Database(cf.Mongo.KlineDbName)
+	hourCollection := klineDb.Collection(cf.Mongo.HourKlineCollection)
+	makeSymbolAsIndexes(hourCollection)
+
+	klineRepository := repository.NewKLineRepository(hourCollection, ctx)
 
 	app := fiber.New()
 	// Default config
 	app.Use(cors.New())
-	app.Post("/coin/", handler.Create)
-	app.Post("/coin/many", handler.CreateMany)
-	app.Get("/coin", handler.GetAll)
-	app.Get("/symbol/:symbol", handler.GetBySymbol)
-	app.Get("/coin/:id", handler.GetById)
-	app.Put("/coin/:id", handler.Update)
-	app.Delete("/coin/:id", handler.Delete)
-	fmt.Printf("cf: %v\n", cf)
+	coinGroup := app.Group("/coin")
+	klineGroup := app.Group("/kline")
+	handlers.NewCoinHandler(coinService, coinGroup)
+	handlers.NewKlineHandler(klineGroup, klineRepository)
+
+	// fmt.Printf("cf: %v\n", cf)
 	// port := os.Getenv("PORT")
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
+	go routine.NewFetchKlineRoutine(klineRepository)
 	app.Listen(fmt.Sprintf(":%v", cf.Port))
 }
 
@@ -77,4 +75,18 @@ func initTimeZone() {
 	}
 
 	time.Local = ict
+}
+
+func makeSymbolAsIndexes(collection *mongo.Collection) {
+	indexName, err := collection.Indexes().CreateOne(
+		context.Background(),
+		mongo.IndexModel{
+			Keys:    bson.D{{Key: "symbol", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("index name:", indexName)
 }

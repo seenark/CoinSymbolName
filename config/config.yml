@@ -5,3 +5,5 @@ mongo:
   password: AtIwatseeNarK19
   dbName: crypto
   coinNameCollection: coin_name
+  klineDbName: kline
+  hourKlineCollection: hour
