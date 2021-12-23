@@ -12,4 +12,6 @@ type ICoinService interface {
 	CreateMany([]CoinResponse) ([]string, error)
 	Update(string, CoinResponse) (string, error)
 	Delete(string) error
+	FetchAllAndSetToCache() error
+	GetFromCache(symbols []string) []CoinResponse
 }

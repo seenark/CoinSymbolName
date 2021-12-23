@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/seenark/coin-name/helpers"
 	"github.com/seenark/coin-name/service"
 )
 
@@ -38,9 +39,16 @@ func (h CoinHandler) CreateMany(c *fiber.Ctx) error {
 }
 
 func (h CoinHandler) GetAll(c *fiber.Ctx) error {
+	helpers.PrintMemUsage()
+	if len(service.AllCoins) == 0 {
+		err := h.CoinService.FetchAllAndSetToCache()
+		if err != nil {
+			return err
+		}
+	}
 
 	symbol := c.Query("symbol")
-	name := c.Query("name")
+	// name := c.Query("name")
 
 	split := strings.Split(symbol, ",")
 
@@ -52,10 +60,13 @@ func (h CoinHandler) GetAll(c *fiber.Ctx) error {
 
 	}
 
-	all, err := h.CoinService.GetAll(split, name)
-	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Somthing went wrong"})
-	}
+	// all, err := h.CoinService.GetAll(split, name)
+	// if err != nil {
+	// 	return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Somthing went wrong"})
+	// }
+
+	all := h.CoinService.GetFromCache(split)
+
 	return c.Status(http.StatusOK).JSON(all)
 }
 

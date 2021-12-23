@@ -23,6 +23,7 @@ func NewCoinRepository(cl *mongo.Collection, ctx *context.Context) CoinRepositor
 }
 
 func (cr *CoinRepositoryDb) GetAll(symbols []string, name string) ([]Coin, error) {
+	fmt.Println("Get All From Repo")
 	filters := bson.M{}
 	newSymbols := []string{}
 	for _, v := range symbols {
@@ -38,8 +39,11 @@ func (cr *CoinRepositoryDb) GetAll(symbols []string, name string) ([]Coin, error
 	if name != "" {
 		filters["name"] = name
 	}
+	options := options.Find()
+	options.SetSort(bson.D{primitive.E{Key: "symbol", Value: 1}})
 	all := []Coin{}
-	cur, err := cr.collection.Find(*cr.ctx, filters)
+	cur, err := cr.collection.Find(*cr.ctx, filters, options)
+
 	if err != nil {
 		return nil, err
 	}

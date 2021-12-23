@@ -10,7 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/seenark/coin-name/config"
 	"github.com/seenark/coin-name/handlers"
-	"github.com/seenark/coin-name/routine"
 
 	"github.com/seenark/coin-name/repository"
 	"github.com/seenark/coin-name/service"
@@ -52,7 +51,7 @@ func main() {
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
-	go routine.NewFetchKlineRoutine(klineRepository)
+	// go routine.NewFetchKlineRoutine(klineRepository)
 	app.Listen(fmt.Sprintf(":%v", cf.Port))
 }
 
